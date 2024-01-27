@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using HotelReservationSystem.Models;
+using HotelReservationSystem;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
 builder.Services.AddDbContext<RoomContext>(opt => opt.UseInMemoryDatabase("Room"));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -18,6 +20,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseItToSeedDatabase();
+
 }
 
 app.UseHttpsRedirection();

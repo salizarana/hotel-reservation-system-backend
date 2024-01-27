@@ -6,31 +6,39 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HotelReservationSystem.Models;
-using Microsoft.AspNetCore.Cors;
 
 namespace HotelReservationSystem.Controllers
 {
-
-    [Route("api/[controller]")]
-
+    [Route("api/rooms")]
     [ApiController]
-    public class RoomsController : ControllerBase
+    public class RoomController : ControllerBase
     {
         private readonly RoomContext _context;
 
-        public RoomsController(RoomContext context)
+        public RoomController(RoomContext context)
         {
             _context = context;
         }
 
-        // GET: api/Rooms
+        // get: api/room
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Room>>> GetRooms()
         {
             return await _context.Rooms.ToListAsync();
         }
 
-        // GET: api/Rooms/5
+        //[HttpGet]
+        //public RoomSearchDto GetRooms(DateTime checkInDate, DateTime checkOutDate, int guestCount, int roomCount) {
+        //    //var rooms = from room in _context.Rooms
+        //    //            select new Room()
+        //    //            {
+        //    //                //CheckInDate = room.CreatedAt.Date;
+        //    //            };
+            
+        //    return new RoomSearchDto { CheckInDate = checkInDate, CheckOutDate = checkOutDate, GuestCount = guestCount, RoomCount = roomCount };
+        //}
+
+        // GET: api/Room/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Room>> GetRoom(int id)
         {
@@ -44,7 +52,7 @@ namespace HotelReservationSystem.Controllers
             return room;
         }
 
-        // PUT: api/Rooms/5
+        // PUT: api/Room/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRoom(int id, Room room)
@@ -75,7 +83,7 @@ namespace HotelReservationSystem.Controllers
             return NoContent();
         }
 
-        // POST: api/Rooms
+        // POST: api/Room
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Room>> PostRoom(Room room)
@@ -83,10 +91,12 @@ namespace HotelReservationSystem.Controllers
             _context.Rooms.Add(room);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetRoom", new { id = room.Id }, room);
+            // return CreatedAtAction("GetRoom", new { id = room.Id }, room);
+            
+            return CreatedAtAction(nameof(Room), new { id = room.Id }, room);
         }
 
-        // DELETE: api/Rooms/5
+        // DELETE: api/Room/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRoom(int id)
         {
