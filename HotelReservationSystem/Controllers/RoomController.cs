@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HotelReservationSystem.Models;
+using Microsoft.OpenApi.Any;
 
 namespace HotelReservationSystem.Controllers
 {
@@ -13,108 +14,50 @@ namespace HotelReservationSystem.Controllers
     [ApiController]
     public class RoomController : ControllerBase
     {
-        private readonly RoomContext _context;
 
-        public RoomController(RoomContext context)
+        private readonly AppDbContext _context;
+        private readonly ILogger _logger;
+
+        public RoomController(AppDbContext context, ILogger<RoomController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // get: api/room
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Room>>> GetRooms()
+        public ActionResult<Room> GetRooms(DateTime checkInDate, DateTime checkOutDate, int guestCount, int roomCount)
         {
-            return await _context.Rooms.ToListAsync();
-        }
+            if (guestCount < 1 || roomCount < 1)
+                return BadRequest("Issue with guest count or room count");
 
-        //[HttpGet]
-        //public RoomSearchDto GetRooms(DateTime checkInDate, DateTime checkOutDate, int guestCount, int roomCount) {
-        //    //var rooms = from room in _context.Rooms
-        //    //            select new Room()
-        //    //            {
-        //    //                //CheckInDate = room.CreatedAt.Date;
-        //    //            };
+            if (checkInDate.Date < DateTime.Today.Date)
+                return BadRequest("Issue with check in date.");
+
+            if (checkOutDate.Date < DateTime.Today.AddDays(1).Date)
+                return BadRequest("Issue with check out date.");
+            //if (guestCount < 1 || roomCount < 1 || checkInDate.Date < DateTime.Today.Date || checkOutDate.Date < DateTime.Today.AddDays(1).Date) {
+            //    return BadRequest();
+            //}
+
+            var reservedRoomIds = _context.Reservations
+                .Where(r => !(r.CheckOutDate <= checkInDate || r.CheckInDate >= checkOutDate))
+                .SelectMany(r => _context.RoomsReserved.Where(rr => rr.ReservationId == r.Id))
+                .Select(rr => rr.RoomID);
+
+            var availableRooms = _context.Rooms
+                .Where(room => !reservedRoomIds.Contains(room.Id));
+
+            var capacity = availableRooms.Sum(r => r.Capacity);
+
+            if (availableRooms.Count() >= roomCount && capacity >= guestCount) {
             
-        //    return new RoomSearchDto { CheckInDate = checkInDate, CheckOutDate = checkOutDate, GuestCount = guestCount, RoomCount = roomCount };
-        //}
-
-        // GET: api/Room/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Room>> GetRoom(int id)
-        {
-            var room = await _context.Rooms.FindAsync(id);
-
-            if (room == null)
-            {
-                return NotFound();
+                return Ok(availableRooms);
             }
 
-            return room;
-        }
+            _logger.LogInformation("Available Rooms: {availableRooms}", availableRooms.Count());
 
-        // PUT: api/Room/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutRoom(int id, Room room)
-        {
-            if (id != room.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(room).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!RoomExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Room
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Room>> PostRoom(Room room)
-        {
-            _context.Rooms.Add(room);
-            await _context.SaveChangesAsync();
-
-            // return CreatedAtAction("GetRoom", new { id = room.Id }, room);
-            
-            return CreatedAtAction(nameof(Room), new { id = room.Id }, room);
-        }
-
-        // DELETE: api/Room/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRoom(int id)
-        {
-            var room = await _context.Rooms.FindAsync(id);
-            if (room == null)
-            {
-                return NotFound();
-            }
-
-            _context.Rooms.Remove(room);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool RoomExists(int id)
-        {
-            return _context.Rooms.Any(e => e.Id == id);
+            return NotFound();
         }
     }
 }

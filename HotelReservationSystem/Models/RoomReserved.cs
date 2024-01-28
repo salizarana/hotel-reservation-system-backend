@@ -12,7 +12,7 @@ namespace HotelReservationSystem.Models
         [ForeignKey("RoomId")]
         public int RoomID { get; set; }
         public string RoomType { get; set; }
-        public required float RatePerNight { get; set; }
+        public decimal RatePerNight { get; set; }
 
         [ForeignKey("ReservationId")]
         public int ReservationId { get; set; }

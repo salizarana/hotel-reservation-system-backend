@@ -10,14 +10,11 @@ namespace HotelReservationSystem.Models
         public string RoomNumber { get; set; } = null!;
 
         public required int Capacity { get; set; }
-        public required float RatePerNight { get; set; }
+        public required decimal RatePerNight { get; set; }
         public string? Description { get; set; }
         public string[]? Features { get; set; }
 
         public string[]? Photos { get; set; }
         public DateTime CreatedAt { get; set; }
-
-        // public ICollection<RoomReserved> RoomsReserved { get; set; } = null!;
-
     }
 }

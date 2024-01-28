@@ -12,7 +12,7 @@ namespace HotelReservationSystem
             var services = scope.ServiceProvider;
             try
             {
-                var context = services.GetRequiredService<RoomContext>();
+                var context = services.GetRequiredService<AppDbContext>();
                 DbInitializer.Initialize(context);
             }
             catch (Exception ex)

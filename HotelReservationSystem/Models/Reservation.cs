@@ -9,12 +9,13 @@ namespace HotelReservationSystem.Models
         public int Id { get; set; }
         public required DateTime CheckInDate { get; set; }
         public required DateTime CheckOutDate { get; set; }
-        public float DiscountPercent { get; set; }
-        public required float TotalAmount { get; set; }
+        public decimal DiscountPercent { get; set; }
+        public decimal DiscountAmount { get; set; }
+        public decimal SubTotal { get; set; }
+        public decimal NetTotal{ get; set; }
         public DateTime CreatedAt { get; set; }
         [ForeignKey("GuestId")]
-        public required int GuestId { get; set; }
-        public required Guest Guest { get; set; }
-        public ICollection<RoomReserved> RoomsReserved { get; set; } = null!;
+        public int GuestId { get; set; }
+        public ICollection<RoomReserved> RoomsReserved { get; set; }
     }
 }

@@ -4,7 +4,7 @@ namespace HotelReservationSystem
 {
     internal class DbInitializer
     {
-        internal static void Initialize(RoomContext dbContext)
+        internal static void Initialize(AppDbContext dbContext)
         {
             ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
             dbContext.Database.EnsureCreated();

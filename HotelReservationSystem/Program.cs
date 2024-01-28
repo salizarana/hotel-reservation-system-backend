@@ -2,13 +2,29 @@ using Microsoft.EntityFrameworkCore;
 using HotelReservationSystem.Models;
 using HotelReservationSystem;
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("*").AllowAnyHeader();
+                      });
+});
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 // Add services to the container.
 
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<RoomContext>(opt => opt.UseInMemoryDatabase("Room"));
+builder.Services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("HotelReservationSystem"));
+//builder.Services.AddDbContext<RoomContext>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -26,7 +42,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors();
+app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthorization();
 
 app.MapControllers();
